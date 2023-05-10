@@ -1,0 +1,39 @@
+service: fileUploadDemo
+
+provider:
+  name: aws
+  runtime: nodejs16.x
+  region: us-east-1
+  role: arn:aws:iam::233784350905:role/addPersonAdmin
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:*
+        - s3:*
+      Resource: '*'
+
+custom:
+#   fileUploadBucket: file-upload-bucket-demo
+  xmlFileBucket: xml-file-upload-bucket-demo
+
+functions:
+  uploadFile:
+    handler: src/functions/uploadFile.handler
+    events:
+      - http:
+          path: /file-upload
+          method: POST
+          cors: true
+
+resources:
+  Resources:
+    # fileUploadBucket:
+    #   Type: AWS::S3::Bucket
+    #   Properties:
+    #     BucketName: ${self:custom.fileUploadBucket}
+        # AccessControl: PublicRead
+    xmlFileBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:custom.xmlFileBucket}
+        # AccessControl: PublicRead
