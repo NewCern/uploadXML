@@ -55,6 +55,7 @@ const handler = (event) => __awaiter(void 0, void 0, void 0, function* () {
         if (body.xml.substr(0, 7) === 'base64,') {
             xmlData = body.xml.substr(7, body.xml.length);
         }
+        //const buffer = fs.readFileSync(body.xml);
         const buffer = Buffer.from(xmlData, 'base64');
         const fileInfo = yield fileType.fromBuffer(buffer);
         const detectedExt = fileInfo === null || fileInfo === void 0 ? void 0 : fileInfo.ext;
@@ -64,20 +65,25 @@ const handler = (event) => __awaiter(void 0, void 0, void 0, function* () {
         }
         const name = (0, uuid_1.v4)();
         const key = `${name}.${detectedExt}`;
-        console.log(`writing xml file to bucket called ${key}`);
+        //console.log(`writing xml file to bucket called ${key}`);
         yield s3
             .putObject({
             Body: buffer,
             Key: key,
             ContentType: body.mime,
-            Bucket: process.env.xmlUploadBucket,
-            ACL: 'public-read',
+            Bucket: "xml-file-upload-bucket-demo",
+            // Bucket: process.env.xmlUploadBucket!, 
+            // ACL: 'public-read',
         })
             .promise();
-        const url = `https://${process.env.xmlUploadBucket}.s3-${process.env.region}.amazonaws.com/${key}`;
-        return API_Responses_1.default._200({
-            xmlURL: url,
-        });
+        return {
+            headers: {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Methods': '*',
+                'Access-Control-Allow-Origin': '*',
+            },
+            body: JSON.stringify({ message: "Image successfully uploaded" })
+        };
     }
     catch (error) {
         console.log('error', error);

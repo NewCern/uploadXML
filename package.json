@@ -1,5 +1,5 @@
 {
-  "name": "dynamodbawsstreamapp",
+  "name": "uploadXML",
   "version": "1.0.0",
   "description": "**Install Dependencies**\\\r npm init -y\\\r npm install typescript\\\r npx tsc --init\\\r npm install express @types/express\\\r npm install nodemon @types/nodemon\\\r npm install --save-dev concurrently\\\r in package.json to run multiple command concurrently:\\\r   \"scripts\": {\\\r     \"start\": \"concurrently \\\"npm run start:server\\\" \\\"npm run start:watch\\\"\",\\\r     \"start:server\": \"nodemon --watch 'src/**/*.ts' --exec ts-node src/app.ts\",\\\r     \"start:watch\": \"tsc --watch\"\r   }",
   "main": "index.js",
@@ -22,7 +22,7 @@
     "aws-lambda": "^1.0.7",
     "concurrently": "^8.0.1",
     "express": "^4.18.2",
-    "file-type": "^18.4.0",
+    "file-type": "^14.6.2",
     "nodemon": "^2.0.22",
     "ts-node": "^10.9.1",
     "typescript": "^5.0.4",

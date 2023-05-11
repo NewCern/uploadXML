@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bookstore>
+  <book category="Science Fiction">
+    <title>The Hitchhiker's Guide to the Galaxy</title>
+    <author>Douglas Adams</author>
+    <year>1979</year>
+    <price>9.99</price>
+  </book>
+  <book category="Fantasy">
+    <title>The Lord of the Rings</title>
+    <author>J.R.R. Tolkien</author>
+    <year>1954</year>
+    <price>12.99</price>
+  </book>
+  <book category="Mystery">
+    <title>The Da Vinci Code</title>
+    <author>Dan Brown</author>
+    <year>2003</year>
+    <price>14.99</price>
+  </book>
+</bookstore>

@@ -13,7 +13,6 @@ provider:
       Resource: '*'
 
 custom:
-#   fileUploadBucket: file-upload-bucket-demo
   xmlFileBucket: xml-file-upload-bucket-demo
 
 functions:
@@ -27,13 +26,8 @@ functions:
 
 resources:
   Resources:
-    # fileUploadBucket:
-    #   Type: AWS::S3::Bucket
-    #   Properties:
-    #     BucketName: ${self:custom.fileUploadBucket}
-        # AccessControl: PublicRead
     xmlFileBucket:
       Type: AWS::S3::Bucket
       Properties:
         BucketName: ${self:custom.xmlFileBucket}
-        # AccessControl: PublicRead
+        # AccessControl: PublicRead 

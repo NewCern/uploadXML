@@ -2,6 +2,7 @@ import Responses from '../common/API_Responses';
 import * as fileType from 'file-type';
 import { v4 as uuid } from 'uuid';
 import * as AWS from 'aws-sdk';
+import * as fs from 'fs';
 
 const s3 = new AWS.S3();
 
@@ -25,8 +26,9 @@ export const handler = async (event: any): Promise<any> => {
             xmlData = body.xml.substr(7, body.xml.length);
         }
 
+        //const buffer = fs.readFileSync(body.xml);
         const buffer = Buffer.from(xmlData, 'base64');
-        const fileInfo = await fileType?.fromBuffer(buffer);
+        const fileInfo = await fileType.fromBuffer(buffer);
         const detectedExt = fileInfo?.ext;
         const detectedMime = fileInfo?.mime;
 
@@ -37,26 +39,27 @@ export const handler = async (event: any): Promise<any> => {
         const name = uuid();
         const key = `${name}.${detectedExt}`;
 
-        console.log(`writing xml file to bucket called ${key}`);
+        //console.log(`writing xml file to bucket called ${key}`);
 
         await s3
             .putObject({
                 Body: buffer,
                 Key: key,
                 ContentType: body.mime,
-                Bucket: process.env.xmlUploadBucket!,
-                ACL: 'public-read',
+                Bucket: "xml-file-upload-bucket-demo"!,
+                // Bucket: process.env.xmlUploadBucket!, 
+                // ACL: 'public-read',
             })
             .promise();
 
-            return {
-                message: "Image successfully uploaded"
-            }
-
-        // const url = `https://${process.env.xmlUploadBucket}.s3-${process.env.region}.amazonaws.com/${key}`;
-        // return Responses._200({
-        //     xmlURL: url,
-        // });
+        return {
+            headers: {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Methods': '*',
+                'Access-Control-Allow-Origin': '*',
+              },
+            body: JSON.stringify({ message: "Image successfully uploaded" })
+        }
     } catch (error) {
         console.log('error', error);
 
