@@ -17,12 +17,21 @@ custom:
 
 functions:
   uploadFile:
-    handler: src/functions/uploadFile.handler
+    handler: src/function/uploadFile.handler
     events:
       - http:
           path: /file-upload
-          method: POST
-          cors: true
+          method: post
+          cors:
+            origin: '*' # <-- Specify allowed origin
+            headers: # <-- Specify allowed headers
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: false
 
 resources:
   Resources:

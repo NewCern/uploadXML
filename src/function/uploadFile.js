@@ -41,31 +41,26 @@ const fileType = __importStar(require("file-type"));
 const uuid_1 = require("uuid");
 const AWS = __importStar(require("aws-sdk"));
 const s3 = new AWS.S3();
+// allowd filetypes (Mulitpurpose Internet mail Extension)
 const allowedMimes = ['application/xml', 'text/xml'];
 const handler = (event) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const body = JSON.parse(event.body);
+        // console.log("This is The Body: ", body);
         if (!body || !body.xml || !body.mime) {
-            return API_Responses_1.default._400({ message: 'incorrect body on request' });
+            return API_Responses_1.default._400({ message: 'incorrect file Type or No File Selected' });
         }
         if (!allowedMimes.includes(body.mime)) {
-            return API_Responses_1.default._400({ message: 'mime is not allowed ' });
+            return API_Responses_1.default._400({ message: 'MIME is not allowed ' });
         }
         let xmlData = body.xml;
-        if (body.xml.substr(0, 7) === 'base64,') {
-            xmlData = body.xml.substr(7, body.xml.length);
-        }
-        //const buffer = fs.readFileSync(body.xml);
+        // convert to a sequence of base64 string
         const buffer = Buffer.from(xmlData, 'base64');
+        // get file type of buffer object
         const fileInfo = yield fileType.fromBuffer(buffer);
         const detectedExt = fileInfo === null || fileInfo === void 0 ? void 0 : fileInfo.ext;
-        const detectedMime = fileInfo === null || fileInfo === void 0 ? void 0 : fileInfo.mime;
-        if (detectedMime !== body.mime) {
-            return API_Responses_1.default._400({ message: 'mime types dont match' });
-        }
         const name = (0, uuid_1.v4)();
         const key = `${name}.${detectedExt}`;
-        //console.log(`writing xml file to bucket called ${key}`);
         yield s3
             .putObject({
             Body: buffer,
@@ -76,14 +71,16 @@ const handler = (event) => __awaiter(void 0, void 0, void 0, function* () {
             // ACL: 'public-read',
         })
             .promise();
-        return {
+        const response = {
+            statusCode: 200,
             headers: {
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Methods': '*',
                 'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+                'Access-Control-Allow-Methods': 'OPTIONS,POST'
             },
-            body: JSON.stringify({ message: "Image successfully uploaded" })
+            body: JSON.stringify({ message: 'File has been successfully uploaded' })
         };
+        return response;
     }
     catch (error) {
         console.log('error', error);

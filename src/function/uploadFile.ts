@@ -6,40 +6,31 @@ import * as fs from 'fs';
 
 const s3 = new AWS.S3();
 
+// allowd filetypes (Mulitpurpose Internet mail Extension)
 const allowedMimes = ['application/xml', 'text/xml'];
-
 
 export const handler = async (event: any): Promise<any> => {
     try {
         const body = JSON.parse(event.body);
+        // console.log("This is The Body: ", body);
 
         if (!body || !body.xml || !body.mime) {
-            return Responses._400({ message: 'incorrect body on request' });
+            return Responses._400({ message: 'incorrect file Type or No File Selected' });
         }
 
         if (!allowedMimes.includes(body.mime)) {
-            return Responses._400({ message: 'mime is not allowed ' });
+            return Responses._400({ message: 'MIME is not allowed ' });
         }
 
         let xmlData = body.xml;
-        if (body.xml.substr(0, 7) === 'base64,') {
-            xmlData = body.xml.substr(7, body.xml.length);
-        }
-
-        //const buffer = fs.readFileSync(body.xml);
+        // convert to a sequence of base64 string
         const buffer = Buffer.from(xmlData, 'base64');
+        // get file type of buffer object
         const fileInfo = await fileType.fromBuffer(buffer);
         const detectedExt = fileInfo?.ext;
-        const detectedMime = fileInfo?.mime;
-
-        if (detectedMime !== body.mime) {
-            return Responses._400({ message: 'mime types dont match' });
-        }
 
         const name = uuid();
         const key = `${name}.${detectedExt}`;
-
-        //console.log(`writing xml file to bucket called ${key}`);
 
         await s3
             .putObject({
@@ -51,18 +42,18 @@ export const handler = async (event: any): Promise<any> => {
                 // ACL: 'public-read',
             })
             .promise();
-
-        return {
+        const response = {
+            statusCode: 200,
             headers: {
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Methods': '*',
                 'Access-Control-Allow-Origin': '*',
-              },
-            body: JSON.stringify({ message: "Image successfully uploaded" })
-        }
+                'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
+                'Access-Control-Allow-Methods': 'OPTIONS,POST'
+            },
+            body: JSON.stringify({ message: 'File has been successfully uploaded' })
+            };
+            return response;
     } catch (error) {
         console.log('error', error);
-
         return Responses._400({ message: error || 'failed to upload xml file' });
     }
 };
